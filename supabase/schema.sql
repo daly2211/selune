@@ -24,7 +24,7 @@ create table if not exists lanes (
     title text not null,
     order_index integer not null,
     collapsed boolean not null default false,
-    limit integer,
+    lane_limit integer,
     color text,
     locked boolean not null default true,
     created_at timestamptz not null,

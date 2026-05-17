@@ -49,7 +49,7 @@ export interface Lane {
     boardId: string;
     order: number;
     collapsed: boolean;
-    limit: number | null;
+    laneLimit: number | null;
     color: string | null;
     locked: boolean;
 }

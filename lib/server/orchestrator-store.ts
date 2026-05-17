@@ -48,7 +48,7 @@ type LaneRow = {
     title: string;
     order_index: number;
     collapsed: boolean;
-    limit: number | null;
+    lane_limit: number | null;
     color: string | null;
     locked: boolean;
     created_at: string;
@@ -112,7 +112,7 @@ function mapLane(row: LaneRow): Lane {
         boardId: row.board_id,
         order: Number(row.order_index) || 0,
         collapsed: Boolean(row.collapsed),
-        limit: row.limit ?? null,
+        laneLimit: row.lane_limit ?? null,
         color: row.color ?? null,
         locked: Boolean(row.locked),
     };
@@ -274,7 +274,7 @@ export async function createBoard(
         title: lane.title,
         order_index: index,
         collapsed: false,
-        limit: null,
+        lane_limit: null,
         color: null,
         locked: true,
         created_at: timestamp,

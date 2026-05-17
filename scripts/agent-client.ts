@@ -95,28 +95,29 @@ function buildPrompt(
         `POST ${serverUrl}/api/tasks/${task.id}/todos`,
         "Body: { items: [{ text, completed }] }",
         "Update a single item:",
-        `PATCH ${serverUrl}/api/tasks/${task.id}/todos/<todoId>`,
-        "Body: { completed: true|false }",
+        `PATCH ${serverUrl}/api/tasks/${task.id}/todos/{todoId}`,
+        "Body: { completed: true or false }",
         "Replace full list:",
         `PUT ${serverUrl}/api/tasks/${task.id}/todos`,
         "Body: { items: [...] }",
-    ].join("\n");
+    ].join(" — ");
 
-    return [
-        `Task: ${task.title}`,
-        boardTitle ? `\nBoard: ${boardTitle}` : "",
-        task.description ? `\n${task.description}` : "",
-        projectPath ? `\nProject path: ${projectPath}` : "",
-        "\n---\n",
-        instructions,
-    ]
-        .filter(Boolean)
-        .join("\n");
+    const parts = [`Task: ${task.title}`];
+    if (boardTitle) parts.push(`Board: ${boardTitle}`);
+    if (task.description) parts.push(task.description);
+    if (projectPath) parts.push(`Project path: ${projectPath}`);
+    parts.push("---");
+    parts.push(instructions);
+
+    return parts.join(" — ");
 }
 
 async function runBob(prompt: string, cwd?: string) {
+    const safePrompt = prompt.replace(/[\r\n]+/g, " ").trim();
+    console.log(`[agent] Running bob in ${cwd || process.cwd()}`);
+    console.log(`[agent] Prompt: ${safePrompt}`);
     return new Promise<{ output: string; exitCode: number }>((resolve) => {
-        const child = spawn("bob", ["-p", prompt, "--yolo"], {
+        const child = spawn("bob", [safePrompt, "--yolo"], {
             cwd: cwd || process.cwd(),
             shell: true,
         });

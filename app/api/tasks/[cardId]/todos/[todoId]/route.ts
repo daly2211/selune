@@ -4,18 +4,19 @@ import { requireWorkspace } from "@/lib/server/request";
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { cardId: string; todoId: string } }
+    { params }: { params: Promise<{ cardId: string; todoId: string }> }
 ) {
     const result = await requireWorkspace(request);
     if ("error" in result) return result.error;
 
+    const { cardId, todoId } = await params;
     const body = await request.json().catch(() => ({}));
     const completed = Boolean(body.completed);
 
     const card = await toggleChecklistItem(
         result.apiKey,
-        params.cardId,
-        params.todoId,
+        cardId,
+        todoId,
         completed
     );
 

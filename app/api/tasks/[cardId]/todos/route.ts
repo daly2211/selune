@@ -23,15 +23,16 @@ function normalizeChecklist(items: unknown): ChecklistItem[] {
 
 export async function POST(
     request: Request,
-    { params }: { params: { cardId: string } }
+    { params }: { params: Promise<{ cardId: string }> }
 ) {
     const result = await requireWorkspace(request);
     if ("error" in result) return result.error;
 
+    const { cardId } = await params;
     const body = await request.json().catch(() => ({}));
     const items = normalizeChecklist(body.items);
 
-    const card = await replaceChecklist(result.apiKey, params.cardId, items);
+    const card = await replaceChecklist(result.apiKey, cardId, items);
     if (!card) {
         return NextResponse.json({ error: "Card not found" }, { status: 404 });
     }
@@ -41,7 +42,7 @@ export async function POST(
 
 export async function PUT(
     request: Request,
-    { params }: { params: { cardId: string } }
+    props: { params: Promise<{ cardId: string }> }
 ) {
-    return POST(request, { params });
+    return POST(request, props);
 }

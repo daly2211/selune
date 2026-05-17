@@ -173,7 +173,7 @@ export function KanbanLane({ lane }: { lane: LaneType }) {
 
                 <span className="text-[11px] text-text-muted font-mono tabular-nums mr-0.5">
                     {cards.length}
-                    {lane.limit ? `/${lane.limit}` : ""}
+                    {lane.laneLimit ? `/${lane.laneLimit}` : ""}
                 </span>
 
                 <div className="relative flex items-center gap-0.5">

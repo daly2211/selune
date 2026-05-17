@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getWorkspace } from "@/lib/server/orchestrator-store";
+import { getWorkspace } from "./orchestrator-store";
 
 export function getApiKey(request: Request): string | null {
     const header = request.headers.get("x-api-key");

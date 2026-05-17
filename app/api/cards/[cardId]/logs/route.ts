@@ -4,11 +4,12 @@ import { requireWorkspace } from "@/lib/server/request";
 
 export async function POST(
     request: Request,
-    { params }: { params: { cardId: string } }
+    { params }: { params: Promise<{ cardId: string }> }
 ) {
     const result = await requireWorkspace(request);
     if ("error" in result) return result.error;
 
+    const { cardId } = await params;
     const body = await request.json().catch(() => ({}));
     const content = typeof body.content === "string" ? body.content : "";
     const source = body.source === "agent" ? "agent" : "client";
@@ -18,7 +19,7 @@ export async function POST(
         return NextResponse.json({ error: "Missing content" }, { status: 400 });
     }
 
-    const card = await appendAgentLog(result.apiKey, params.cardId, {
+    const card = await appendAgentLog(result.apiKey, cardId, {
         source,
         content,
         exitCode,
