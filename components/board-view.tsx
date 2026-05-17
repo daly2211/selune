@@ -6,7 +6,8 @@ import {
     DragOverlay,
     closestCorners,
     KeyboardSensor,
-    PointerSensor,
+    MouseSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     type DragStartEvent,
@@ -21,7 +22,7 @@ import { KanbanLane } from "./kanban-lane";
 import { KanbanCardOverlay } from "./kanban-card";
 import { Toolbar } from "./toolbar";
 import type { Card } from "@/lib/types";
-import { Star, Layers } from "lucide-react";
+import { Star, Layers, PanelLeftOpen } from "lucide-react";
 
 export function BoardView() {
     const {
@@ -32,6 +33,7 @@ export function BoardView() {
         reorderCards,
         getLaneCards,
         toggleBoardFavorite,
+        toggleSidebar,
     } = useStore();
 
     const board = boards.find((b) => b.id === activeBoardId);
@@ -40,8 +42,11 @@ export function BoardView() {
     const [activeCard, setActiveCard] = useState<Card | null>(null);
 
     const sensors = useSensors(
-        useSensor(PointerSensor, {
+        useSensor(MouseSensor, {
             activationConstraint: { distance: 5 },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: { distance: 6 },
         }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
@@ -79,6 +84,8 @@ export function BoardView() {
                 if (overCard) targetLaneId = overCard.laneId;
             } else if (overData?.type === "lane") {
                 targetLaneId = overData.laneId as string;
+            } else if (overData?.type === "lane-sortable") {
+                targetLaneId = overData.lane.id as string;
             }
 
             if (targetLaneId && targetLaneId !== card.laneId) {
@@ -130,8 +137,15 @@ export function BoardView() {
 
     if (!board) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-bg-primary">
+            <div className="flex-1 flex items-center justify-center bg-bg-primary px-4">
                 <div className="text-center max-w-[280px]">
+                    <button
+                        onClick={toggleSidebar}
+                        className="mb-3 inline-flex items-center gap-1.5 rounded-md border border-border-subtle px-2.5 py-1.5 text-[12px] text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-theme md:hidden"
+                    >
+                        <PanelLeftOpen size={13} />
+                        Boards
+                    </button>
                     <div className="w-10 h-10 rounded-lg bg-bg-tertiary flex items-center justify-center mx-auto mb-3">
                         <Layers size={18} className="text-text-muted" />
                     </div>
@@ -149,13 +163,20 @@ export function BoardView() {
     return (
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-bg-primary">
             {/* Board header */}
-            <div className="flex items-center justify-between px-5 h-12 border-b border-border-subtle flex-shrink-0">
-                <div className="flex items-center gap-2.5">
-                    <h1 className="text-[14px] font-semibold text-text-primary tracking-tight">
+            <div className="flex min-h-12 items-center justify-between gap-3 px-3 py-2 sm:px-5 border-b border-border-subtle flex-shrink-0">
+                <div className="flex min-w-0 items-center gap-2.5">
+                    <button
+                        onClick={toggleSidebar}
+                        className="p-1.5 rounded-md hover:bg-bg-hover text-text-tertiary hover:text-text-secondary transition-theme md:hidden"
+                        title="Open sidebar"
+                    >
+                        <PanelLeftOpen size={15} />
+                    </button>
+                    <h1 className="text-[14px] font-semibold text-text-primary tracking-tight truncate">
                         {board.title}
                     </h1>
                     {board.projectPath && (
-                        <span className="text-[11px] text-text-muted font-mono">
+                        <span className="hidden min-w-0 truncate text-[11px] text-text-muted font-mono sm:block">
                             {board.projectPath}
                         </span>
                     )}
@@ -172,7 +193,7 @@ export function BoardView() {
                         <Star size={13} fill={board.favorite ? "currentColor" : "none"} />
                     </button>
                 </div>
-                <div className="flex items-center gap-3 text-[12px] text-text-muted font-mono tabular-nums">
+                <div className="hidden shrink-0 items-center gap-3 text-[12px] text-text-muted font-mono tabular-nums sm:flex">
                     <span>{lanes.length} lanes</span>
                     <span className="text-border-strong">·</span>
                     <span>{totalCards} cards</span>
@@ -183,7 +204,7 @@ export function BoardView() {
             <Toolbar />
 
             {/* Board canvas */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden px-4 py-4">
+            <div className="flex-1 touch-pan-y overflow-x-hidden overflow-y-auto px-3 py-3 sm:px-4 sm:py-4 xl:touch-auto xl:overflow-x-auto xl:overflow-y-hidden">
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCorners}
@@ -191,7 +212,7 @@ export function BoardView() {
                     onDragOver={handleDragOver}
                     onDragEnd={handleDragEnd}
                 >
-                    <div className="flex gap-3 h-full items-start">
+                    <div className="flex min-h-full flex-col items-stretch gap-3 xl:h-full xl:flex-row xl:items-start">
                         {lanes.map((lane) => (
                             <KanbanLane key={lane.id} lane={lane} />
                         ))}
