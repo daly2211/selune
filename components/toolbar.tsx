@@ -87,9 +87,9 @@ export function Toolbar() {
     }
 
     return (
-        <div className="flex flex-wrap items-center gap-2 px-3 py-2 sm:px-4 border-b border-border-default bg-bg-primary/80 backdrop-blur-md sticky top-0 z-20">
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-border-default bg-bg-primary/80 backdrop-blur-md sticky top-0 z-20">
             {/* Search */}
-            <div className="flex w-full flex-none items-center gap-1.5 bg-bg-secondary border border-border-subtle rounded-md px-2.5 py-1.5 focus-within:border-border-default transition-theme sm:flex-1 sm:max-w-[240px]">
+            <div className="flex items-center gap-1.5 bg-bg-secondary border border-border-subtle rounded-md px-2.5 py-1.5 flex-1 max-w-[240px] focus-within:border-border-default transition-theme">
                 <Search size={13} className="text-text-muted flex-shrink-0" />
                 <input
                     value={filters.search}
@@ -128,7 +128,7 @@ export function Toolbar() {
                 </button>
 
                 {showFilters && (
-                    <div className="absolute left-0 top-full mt-1.5 w-[min(280px,calc(100vw-1.5rem))] max-h-[70dvh] overflow-y-auto bg-bg-elevated border border-border-default rounded-lg shadow-[var(--shadow-popup)] z-50 py-2">
+                    <div className="absolute left-0 top-full mt-1.5 w-[280px] bg-bg-elevated border border-border-default rounded-lg shadow-[var(--shadow-popup)] z-50 py-2">
                         {/* Priority */}
                         <div className="px-3 py-2">
                             <div className="text-[11px] font-medium text-text-muted uppercase tracking-[0.04em] mb-2">
@@ -252,7 +252,7 @@ export function Toolbar() {
                 </button>
 
                 {showSort && (
-                    <div className="absolute right-0 top-full mt-1.5 w-[160px] max-w-[calc(100vw-1.5rem)] bg-bg-elevated border border-border-default rounded-lg shadow-[var(--shadow-popup)] z-50 py-1">
+                    <div className="absolute right-0 top-full mt-1.5 w-[160px] bg-bg-elevated border border-border-default rounded-lg shadow-[var(--shadow-popup)] z-50 py-1">
                         {sortOptions.map((s) => (
                             <button
                                 key={s.value}
@@ -285,7 +285,7 @@ export function Toolbar() {
 
             {/* Active pills */}
             {activeFilterCount > 0 && (
-                <div className="flex w-full items-center gap-1 overflow-x-auto pb-0.5 sm:ml-1 sm:w-auto sm:overflow-visible sm:pb-0">
+                <div className="flex items-center gap-1 ml-1">
                     {filters.priorities.map((p) => (
                         <span
                             key={p}

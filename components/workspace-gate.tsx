@@ -44,8 +44,8 @@ export function WorkspaceGate() {
     }
 
     return (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm px-3 py-4 sm:px-4">
-            <div className="max-h-full w-full max-w-[520px] overflow-y-auto bg-bg-primary border border-border-default rounded-xl shadow-[var(--shadow-popup)] p-4 sm:p-6">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+            <div className="w-full max-w-[520px] bg-bg-primary border border-border-default rounded-xl shadow-[var(--shadow-popup)] p-6">
                 <div className="text-[18px] font-semibold text-text-primary mb-1">
                     Workspace access
                 </div>
@@ -70,7 +70,7 @@ export function WorkspaceGate() {
                     </div>
                 ) : (
                     <>
-                        <div className="flex flex-col items-stretch gap-2 mb-4 sm:flex-row sm:items-center">
+                        <div className="flex items-center gap-2 mb-4">
                             <button
                                 onClick={handleGenerate}
                                 className="px-3 py-2 text-[13px] rounded-md bg-accent-blue text-white hover:bg-accent-blue-muted transition-theme"
@@ -86,7 +86,7 @@ export function WorkspaceGate() {
                             <div className="text-[12px] text-text-muted mb-2">
                                 Already have a key?
                             </div>
-                            <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+                            <div className="flex items-center gap-2">
                                 <input
                                     value={existingKey}
                                     onChange={(e) => setExistingKey(e.target.value)}

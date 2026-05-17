@@ -90,7 +90,7 @@ function SortableChecklistItem({
             <button
                 {...attributes}
                 {...listeners}
-                className="opacity-40 md:opacity-0 md:group-hover:opacity-40 hover:!opacity-100 cursor-grab active:cursor-grabbing text-text-muted transition-theme"
+                className="opacity-0 group-hover:opacity-40 hover:!opacity-100 cursor-grab active:cursor-grabbing text-text-muted transition-theme"
             >
                 <GripVertical size={13} />
             </button>
@@ -117,7 +117,7 @@ function SortableChecklistItem({
             </button>
             <span
                 className={cn(
-                    "flex-1 min-w-0 break-words text-[13px]",
+                    "flex-1 text-[13px]",
                     item.completed ? "text-text-muted line-through" : "text-text-secondary"
                 )}
             >
@@ -125,7 +125,7 @@ function SortableChecklistItem({
             </span>
             <button
                 onClick={() => onDelete(item.id)}
-                className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-0.5 text-text-muted hover:text-accent-red transition-theme"
+                className="opacity-0 group-hover:opacity-100 p-0.5 text-text-muted hover:text-accent-red transition-theme"
             >
                 <X size={12} />
             </button>
@@ -290,14 +290,14 @@ export function CardDetail() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 40 }}
                         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                        className="fixed inset-y-0 right-0 left-0 md:left-auto z-50 w-full md:max-w-[680px] bg-bg-primary/95 backdrop-blur-3xl border-l border-border-default shadow-[var(--shadow-popup)] flex flex-col md:flex-row overflow-y-auto md:overflow-hidden"
+                        className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-[680px] bg-bg-primary/95 backdrop-blur-3xl border-l border-border-default shadow-[var(--shadow-popup)] flex overflow-hidden"
                     >
                         {/* Main content */}
-                        <div className="flex min-w-0 flex-none flex-col md:flex-1 md:overflow-hidden">
+                        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                             {/* Top bar */}
-                            <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-2 sm:px-5 border-b border-border-subtle flex-shrink-0 bg-bg-sidebar/50 backdrop-blur-xl">
-                                <div className="flex min-w-0 items-center gap-2 text-[12px] text-text-muted font-mono">
-                                    <span className="truncate text-text-tertiary">{lane?.title}</span>
+                            <div className="flex items-center justify-between px-5 h-12 border-b border-border-subtle flex-shrink-0 bg-bg-sidebar/50 backdrop-blur-xl">
+                                <div className="flex items-center gap-2 text-[12px] text-text-muted font-mono">
+                                    <span className="text-text-tertiary">{lane?.title}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <button
@@ -330,8 +330,8 @@ export function CardDetail() {
                             </div>
 
                             {/* Scrollable body */}
-                            <div className="flex-none md:flex-1 md:overflow-y-auto">
-                                <div className="px-4 pt-5 pb-4 sm:px-6 sm:pt-6">
+                            <div className="flex-1 overflow-y-auto">
+                                <div className="px-6 pt-6 pb-4">
                                     {/* Title */}
                                     <textarea
                                         ref={titleRef}
@@ -343,7 +343,7 @@ export function CardDetail() {
                                             }
                                         }}
                                         rows={1}
-                                        className="w-full text-[18px] sm:text-[20px] font-semibold text-text-primary bg-transparent outline-none placeholder:text-text-muted resize-none leading-tight"
+                                        className="w-full text-[20px] font-semibold text-text-primary bg-transparent outline-none placeholder:text-text-muted resize-none leading-tight"
                                         placeholder="Card title…"
                                         style={{ fieldSizing: "content" } as React.CSSProperties}
                                     />
@@ -415,8 +415,8 @@ export function CardDetail() {
 
                                 {/* Checklist with DnD */}
                                 {(card.checklist.length > 0 || true) && (
-                                    <div className="px-4 py-4 sm:px-6 border-t border-border-subtle">
-                                        <div className="flex items-center justify-between gap-3 mb-3">
+                                    <div className="px-6 py-4 border-t border-border-subtle">
+                                        <div className="flex items-center justify-between mb-3">
                                             <h3 className="text-[13px] font-medium text-text-primary flex items-center gap-2">
                                                 <CheckSquare size={14} className="text-text-tertiary" />
                                                 Checklist
@@ -474,14 +474,14 @@ export function CardDetail() {
                                                     if (e.key === "Enter") handleAddCheckItem();
                                                 }}
                                                 placeholder="Add item…"
-                                                className="min-w-0 flex-1 py-1 text-[13px] bg-transparent text-text-secondary placeholder:text-text-muted outline-none"
+                                                className="flex-1 py-1 text-[13px] bg-transparent text-text-secondary placeholder:text-text-muted outline-none"
                                             />
                                         </div>
                                     </div>
                                 )}
 
                                 {card.agentLogs.length > 0 && (
-                                    <div className="px-4 py-4 sm:px-6 border-t border-border-subtle">
+                                    <div className="px-6 py-4 border-t border-border-subtle">
                                         <h3 className="text-[13px] font-medium text-text-primary mb-3 flex items-center gap-2">
                                             <MessageSquare size={14} className="text-text-tertiary" />
                                             Agent logs
@@ -492,7 +492,7 @@ export function CardDetail() {
                                                     key={entry.id}
                                                     className="rounded-md border border-border-subtle bg-bg-secondary/70"
                                                 >
-                                                    <div className="flex flex-wrap items-center justify-between gap-1 px-3 py-2 border-b border-border-subtle">
+                                                    <div className="flex items-center justify-between px-3 py-2 border-b border-border-subtle">
                                                         <div className="text-[11px] text-text-muted font-mono">
                                                             {format(new Date(entry.timestamp), "MMM d, HH:mm")}
                                                         </div>
@@ -513,7 +513,7 @@ export function CardDetail() {
                                 )}
 
                                 {/* Activity */}
-                                <div className="px-4 py-4 sm:px-6 border-t border-border-subtle">
+                                <div className="px-6 py-4 border-t border-border-subtle">
                                     <h3 className="text-[13px] font-medium text-text-primary mb-3 flex items-center gap-2">
                                         <MessageSquare size={14} className="text-text-tertiary" />
                                         Activity
@@ -543,14 +543,14 @@ export function CardDetail() {
                         </div>
 
                         {/* Properties sidebar */}
-                        <div className="w-full flex-shrink-0 border-t border-border-subtle bg-bg-sidebar/50 backdrop-blur-xl md:w-[220px] md:border-l md:border-t-0 md:overflow-y-auto">
-                            <div className="grid gap-5 p-4 sm:grid-cols-2 sm:p-5 md:block md:space-y-6">
+                        <div className="w-[220px] border-l border-border-subtle bg-bg-sidebar/50 backdrop-blur-xl flex-shrink-0 overflow-y-auto">
+                            <div className="p-5 space-y-6">
                                 {/* Status (lane) */}
-                                <div className="min-w-0">
+                                <div>
                                     <div className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mb-2">
                                         Status
                                     </div>
-                                    <div className="flex min-w-0 items-center gap-2 text-[13px] text-text-primary">
+                                    <div className="flex items-center gap-2 text-[13px] text-text-primary">
                                         <span
                                             className={cn(
                                                 "w-2 h-2 rounded-full",
@@ -561,12 +561,12 @@ export function CardDetail() {
                                                         : "bg-status-todo"
                                             )}
                                         />
-                                        <span className="truncate">{lane?.title || "—"}</span>
+                                        {lane?.title || "—"}
                                     </div>
                                 </div>
 
                                 {/* Priority */}
-                                <div className="min-w-0">
+                                <div>
                                     <div className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mb-2">
                                         Priority
                                     </div>
@@ -596,7 +596,7 @@ export function CardDetail() {
                                 </div>
 
                                 {/* Due Date */}
-                                <div className="min-w-0">
+                                <div>
                                     <div className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mb-2">
                                         Due date
                                     </div>
@@ -622,7 +622,7 @@ export function CardDetail() {
                                 </div>
 
                                 {/* Color */}
-                                <div className="min-w-0">
+                                <div>
                                     <div className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mb-2">
                                         Label
                                     </div>
@@ -632,7 +632,7 @@ export function CardDetail() {
                                             className={cn(
                                                 "w-5 h-5 rounded border-2 transition-theme",
                                                 !card.colorLabel
-                                                    ? "border-text-tertiary bg-text-primary"
+                                                    ? "border-text-tertiary"
                                                     : "border-border-default bg-bg-tertiary hover:border-border-strong"
                                             )}
                                             title="None"
@@ -655,7 +655,7 @@ export function CardDetail() {
                                 </div>
 
                                 {/* Tags */}
-                                <div className="min-w-0">
+                                <div>
                                     <div className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mb-2">
                                         Tags
                                     </div>

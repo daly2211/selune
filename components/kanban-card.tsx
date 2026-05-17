@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion } from "framer-motion";
@@ -26,20 +25,8 @@ const priorityConfig: Record<Priority, { icon: typeof ArrowUp; label: string; cl
     low: { icon: ArrowDown, label: "Low", class: "text-priority-low" },
 };
 
-function colorLabelClass(color: Card["colorLabel"]) {
-    return cn(
-        !color && "bg-text-primary",
-        color === "blue" && "bg-accent-blue",
-        color === "red" && "bg-accent-red",
-        color === "amber" && "bg-accent-amber",
-        color === "green" && "bg-accent-green",
-        color === "purple" && "bg-accent-purple"
-    );
-}
-
 export function KanbanCard({ card }: { card: Card }) {
     const setActiveCard = useStore((s) => s.setActiveCard);
-    const [useWholeCardDrag, setUseWholeCardDrag] = useState(false);
 
     const {
         attributes,
@@ -58,15 +45,6 @@ export function KanbanCard({ card }: { card: Card }) {
         transition,
     };
 
-    useEffect(() => {
-        const query = window.matchMedia("(min-width: 1280px)");
-        const updateDragMode = () => setUseWholeCardDrag(query.matches);
-
-        updateDragMode();
-        query.addEventListener("change", updateDragMode);
-        return () => query.removeEventListener("change", updateDragMode);
-    }, []);
-
     const priority = priorityConfig[card.priority];
     const PriorityIcon = priority.icon;
     const completedChecklist = card.checklist.filter((c) => c.completed).length;
@@ -82,29 +60,19 @@ export function KanbanCard({ card }: { card: Card }) {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: isDragging ? 0.3 : 1, y: 0 }}
             exit={{ opacity: 0, y: -6, transition: { duration: 0.12 } }}
-            {...(useWholeCardDrag ? attributes : {})}
-            {...(useWholeCardDrag ? listeners : {})}
+            {...attributes}
+            {...listeners}
             className={cn(
-                "group relative overflow-hidden rounded-md border bg-bg-secondary border-border-subtle transition-theme hover:bg-bg-tertiary hover:border-border-default xl:cursor-grab xl:active:cursor-grabbing",
+                "group rounded-md border bg-bg-secondary border-border-subtle cursor-grab active:cursor-grabbing transition-theme hover:bg-bg-tertiary hover:border-border-default",
                 isDragging && "opacity-30"
             )}
             onClick={() => setActiveCard(card.id)}
         >
-            <div className={cn("absolute inset-x-0 top-0 h-[2px]", colorLabelClass(card.colorLabel))} />
+
 
             <div className="px-3 py-3">
                 {/* Title row */}
                 <div className="flex items-start gap-2">
-                    <button
-                        type="button"
-                        {...attributes}
-                        {...listeners}
-                        onClick={(e) => e.stopPropagation()}
-                        className="hidden touch-none -ml-1 mt-0.5 flex-shrink-0 rounded p-0.5 text-text-muted cursor-grab active:cursor-grabbing transition-theme hover:bg-bg-hover hover:text-text-secondary xl:flex xl:opacity-0 xl:group-hover:opacity-70"
-                        title="Drag card"
-                    >
-                        <GripVertical size={13} />
-                    </button>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                             <div className="text-[13px] text-text-primary leading-[1.4] break-words">
@@ -114,7 +82,11 @@ export function KanbanCard({ card }: { card: Card }) {
                                 <div
                                     className={cn(
                                         "w-2 h-2 rounded-full mt-1 flex-shrink-0",
-                                        colorLabelClass(card.colorLabel)
+                                        card.colorLabel === "blue" && "bg-accent-blue",
+                                        card.colorLabel === "red" && "bg-accent-red",
+                                        card.colorLabel === "amber" && "bg-accent-amber",
+                                        card.colorLabel === "green" && "bg-accent-green",
+                                        card.colorLabel === "purple" && "bg-accent-purple"
                                     )}
                                 />
                             )}
@@ -127,7 +99,7 @@ export function KanbanCard({ card }: { card: Card }) {
                         )}
 
                         {/* Meta */}
-                        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5">
+                        <div className="flex items-center gap-2.5 mt-1.5">
                             {/* Priority */}
                             <span className={cn("inline-flex items-center", priority.class)} title={priority.label}>
                                 <PriorityIcon size={12} />
@@ -191,17 +163,6 @@ export function KanbanCard({ card }: { card: Card }) {
                     </div>
                 </div>
             </div>
-
-            <button
-                type="button"
-                {...attributes}
-                {...listeners}
-                onClick={(e) => e.stopPropagation()}
-                className="flex min-h-11 touch-none select-none items-center justify-center border-t border-border-subtle text-text-muted cursor-grab active:cursor-grabbing transition-theme hover:bg-bg-hover hover:text-text-secondary xl:hidden"
-                title="Drag card"
-            >
-                <GripVertical size={16} />
-            </button>
         </motion.div>
     );
 }
@@ -212,8 +173,7 @@ export function KanbanCardOverlay({ card }: { card: Card }) {
     const PriorityIcon = priority.icon;
 
     return (
-        <div className="drag-overlay relative overflow-hidden touch-none rounded-md border bg-bg-secondary border-accent-blue/30 w-[min(268px,calc(100vw-2rem))] shadow-[var(--shadow-lg)]">
-            <div className={cn("absolute inset-x-0 top-0 h-[2px]", colorLabelClass(card.colorLabel))} />
+        <div className="drag-overlay rounded-md border bg-bg-secondary border-accent-blue/30 w-[268px] shadow-[var(--shadow-lg)]">
 
             <div className="px-3 py-3">
                 <div className="flex items-start gap-2">
@@ -226,7 +186,11 @@ export function KanbanCardOverlay({ card }: { card: Card }) {
                                 <div
                                     className={cn(
                                         "w-2 h-2 rounded-full mt-1 flex-shrink-0",
-                                        colorLabelClass(card.colorLabel)
+                                        card.colorLabel === "blue" && "bg-accent-blue",
+                                        card.colorLabel === "red" && "bg-accent-red",
+                                        card.colorLabel === "amber" && "bg-accent-amber",
+                                        card.colorLabel === "green" && "bg-accent-green",
+                                        card.colorLabel === "purple" && "bg-accent-purple"
                                     )}
                                 />
                             )}

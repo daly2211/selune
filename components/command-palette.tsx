@@ -159,7 +159,7 @@ export function CommandPalette() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.1 }}
-                className="fixed inset-0 z-[100] flex items-start justify-center px-3 pt-4 sm:px-4 sm:pt-[16vh]"
+                className="fixed inset-0 z-[100] flex items-start justify-center pt-[16vh] px-4"
                 onClick={(e) => {
                     if (e.target === overlayRef.current) toggleCommandPalette();
                 }}
@@ -174,7 +174,7 @@ export function CommandPalette() {
                     className="relative w-full max-w-[520px] bg-bg-primary border border-border-default rounded-xl shadow-[var(--shadow-popup)] overflow-hidden"
                 >
                     {/* Input */}
-                    <div className="flex items-center gap-2.5 px-3 sm:px-4 h-12 border-b border-border-subtle">
+                    <div className="flex items-center gap-2.5 px-4 h-12 border-b border-border-subtle">
                         <Search size={15} className="text-text-muted flex-shrink-0" />
                         <input
                             ref={inputRef}
@@ -188,7 +188,7 @@ export function CommandPalette() {
                     </div>
 
                     {/* Results */}
-                    <div className="max-h-[min(70dvh,320px)] overflow-y-auto py-1">
+                    <div className="max-h-[320px] overflow-y-auto py-1">
                         {filtered.length === 0 && (
                             <div className="px-4 py-8 text-center text-[13px] text-text-muted">
                                 No results found
@@ -234,7 +234,7 @@ export function CommandPalette() {
                     </div>
 
                     {/* Footer */}
-                    <div className="hidden px-4 py-2 border-t border-border-subtle items-center gap-4 text-[10px] text-text-muted sm:flex">
+                    <div className="px-4 py-2 border-t border-border-subtle flex items-center gap-4 text-[10px] text-text-muted">
                         <span className="flex items-center gap-1"><kbd>↑↓</kbd> navigate</span>
                         <span className="flex items-center gap-1"><kbd>↵</kbd> select</span>
                         <span className="flex items-center gap-1"><kbd>esc</kbd> close</span>
