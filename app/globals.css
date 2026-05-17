@@ -1,26 +1,208 @@
 @import "tailwindcss";
 
+/* ─── Design Tokens — Linear-inspired ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-base: #08090A;
+  --bg-sidebar: #08090A;
+  --bg-primary: #08090A;
+  --bg-secondary: #111318;
+  --bg-tertiary: #16181D;
+  --bg-elevated: #1C1E24;
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active: rgba(255, 255, 255, 0.08);
+
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+
+  --text-primary: #EBEBEB;
+  --text-secondary: #A1A3A8;
+  --text-tertiary: #75777C;
+  --text-muted: #525459;
+
+  --accent-blue: #5E6AD2;
+  --accent-blue-muted: #4e5bc2;
+  --accent-blue-subtle: rgba(94, 106, 210, 0.15);
+
+  --accent-red: #d25e5e;
+  --accent-red-muted: #b84f4f;
+  --accent-red-subtle: rgba(210, 94, 94, 0.15);
+  --accent-amber: #d2a35e;
+  --accent-amber-muted: #b88d4f;
+  --accent-amber-subtle: rgba(210, 163, 94, 0.15);
+  --accent-green: #5ed29a;
+  --accent-green-muted: #4fb883;
+  --accent-green-subtle: rgba(94, 210, 154, 0.15);
+  --accent-purple: #a855f7;
+  --accent-purple-muted: #9333ea;
+  --accent-purple-subtle: rgba(168, 85, 247, 0.15);
+  --accent-orange: #f97316;
+
+  --priority-low: #5e6ad2;
+  --priority-medium: #d2a35e;
+  --priority-high: #f97316;
+  --priority-urgent: #d25e5e;
+
+  --status-todo: #6e6f78;
+  --status-progress: #d2a35e;
+  --status-done: #5ed29a;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-popup: 0 4px 24px rgba(0, 0, 0, 0.5);
+
+  --font-sans: var(--font-geist-sans), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: var(--font-geist-mono), "JetBrains Mono", "Fira Code", monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg-base: var(--bg-base);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-active: var(--bg-active);
+  --color-bg-sidebar: var(--bg-sidebar);
+
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-muted: var(--text-muted);
+
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-muted: var(--accent-blue-muted);
+  --color-accent-blue-subtle: var(--accent-blue-subtle);
+  --color-accent-red: var(--accent-red);
+  --color-accent-red-muted: var(--accent-red-muted);
+  --color-accent-red-subtle: var(--accent-red-subtle);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-amber-muted: var(--accent-amber-muted);
+  --color-accent-amber-subtle: var(--accent-amber-subtle);
+  --color-accent-green: var(--accent-green);
+  --color-accent-green-muted: var(--accent-green-muted);
+  --color-accent-green-subtle: var(--accent-green-subtle);
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-purple-muted: var(--accent-purple-muted);
+  --color-accent-purple-subtle: var(--accent-purple-subtle);
+  --color-accent-orange: var(--accent-orange);
+
+  --color-priority-low: var(--priority-low);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-high: var(--priority-high);
+  --color-priority-urgent: var(--priority-urgent);
+
+  --color-status-todo: var(--status-todo);
+  --color-status-progress: var(--status-progress);
+  --color-status-done: var(--status-done);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base ─── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+::selection {
+  background: var(--accent-blue-muted);
+  color: var(--text-primary);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ─── Focus ─── */
+:focus-visible {
+  outline: 1.5px solid var(--accent-blue);
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── Subtle grain ─── */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.012;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ─── Drag ─── */
+.drag-overlay {
+  opacity: 0.95;
+  transform: rotate(1deg) scale(1.01);
+  box-shadow: var(--shadow-lg);
+  cursor: grabbing;
+}
+
+/* ─── Lane scroll ─── */
+.lane-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
+}
+
+/* ─── Kbd ─── */
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  min-width: 18px;
+}
+
+/* ─── Transitions ─── */
+.transition-theme {
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease, opacity 120ms ease;
 }
