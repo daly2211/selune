@@ -16,6 +16,8 @@ import {
     Minus,
     GripVertical,
     MessageSquare,
+    GitBranch,
+    Loader2,
 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 
@@ -37,8 +39,47 @@ function colorLabelClass(color: Card["colorLabel"]) {
     );
 }
 
+function RunningIndicator() {
+    return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-blue/30 bg-accent-blue-subtle/60 px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-accent-blue">
+            <span className="relative inline-flex h-3 w-3 items-center justify-center">
+                <span className="absolute inline-flex h-3 w-3 animate-ping rounded-full bg-accent-blue/30" />
+                <span className="inline-flex h-3 w-3 animate-spin rounded-full bg-gradient-to-r from-accent-blue via-accent-amber to-accent-green p-[1px]">
+                    <span className="h-full w-full rounded-full bg-bg-secondary" />
+                </span>
+            </span>
+            <span className="font-medium">Running</span>
+        </span>
+    );
+}
+
+function PendingMoveIndicator() {
+    return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-bg-hover/70 px-2 py-[1px] text-[10px] uppercase tracking-[0.08em] text-text-tertiary">
+            <Loader2 size={10} className="animate-spin" />
+            <span className="font-medium">Syncing</span>
+        </span>
+    );
+}
+
+function formatBranchUrl(url: string) {
+    try {
+        const parsed = new URL(url);
+        const parts = parsed.pathname.split("/").filter(Boolean);
+        let path = parts.join("/");
+        if (parts.length > 4) {
+            path = `${parts.slice(0, 2).join("/")}/.../${parts.slice(-2).join("/")}`;
+        }
+        return `${parsed.hostname}/${path}`;
+    } catch {
+        return url;
+    }
+}
+
 export function KanbanCard({ card }: { card: Card }) {
     const setActiveCard = useStore((s) => s.setActiveCard);
+    const lane = useStore((s) => s.lanes.find((l) => l.id === card.laneId));
+    const isPendingMove = useStore((s) => Boolean(s.pendingCardPositions[card.id]));
     const [useWholeCardDrag, setUseWholeCardDrag] = useState(false);
 
     const {
@@ -72,6 +113,8 @@ export function KanbanCard({ card }: { card: Card }) {
     const completedChecklist = card.checklist.filter((c) => c.completed).length;
     const totalChecklist = card.checklist.length;
     const isOverdue = card.dueDate && isPast(new Date(card.dueDate)) && !isToday(new Date(card.dueDate));
+    const isRunning = lane?.key === "doing";
+    const branchLabel = card.branchUrl ? formatBranchUrl(card.branchUrl) : "";
 
     return (
         <motion.div
@@ -90,8 +133,6 @@ export function KanbanCard({ card }: { card: Card }) {
             )}
             onClick={() => setActiveCard(card.id)}
         >
-            <div className={cn("absolute inset-x-0 top-0 h-[2px]", colorLabelClass(card.colorLabel))} />
-
             <div className="px-3 py-3">
                 {/* Title row */}
                 <div className="flex items-start gap-2">
@@ -128,6 +169,12 @@ export function KanbanCard({ card }: { card: Card }) {
 
                         {/* Meta */}
                         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5">
+                            {/* Running */}
+                            {isRunning && <RunningIndicator />}
+
+                            {/* Syncing */}
+                            {isPendingMove && !isDragging && <PendingMoveIndicator />}
+
                             {/* Priority */}
                             <span className={cn("inline-flex items-center", priority.class)} title={priority.label}>
                                 <PriorityIcon size={12} />
@@ -167,6 +214,21 @@ export function KanbanCard({ card }: { card: Card }) {
                                     <MessageSquare size={10} />
                                     {card.activityLog.length}
                                 </span>
+                            )}
+
+                            {/* Branch */}
+                            {card.branchUrl && (
+                                <a
+                                    href={card.branchUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-bg-hover/60 px-2 py-[1px] text-[10px] text-text-tertiary hover:text-accent-blue hover:border-accent-blue/30 transition-theme"
+                                    title={card.branchUrl}
+                                >
+                                    <GitBranch size={10} />
+                                    <span className="truncate max-w-[160px]">{branchLabel}</span>
+                                </a>
                             )}
                         </div>
 
@@ -213,8 +275,6 @@ export function KanbanCardOverlay({ card }: { card: Card }) {
 
     return (
         <div className="drag-overlay relative overflow-hidden touch-none rounded-md border bg-bg-secondary border-accent-blue/30 w-[min(268px,calc(100vw-2rem))] shadow-[var(--shadow-lg)]">
-            <div className={cn("absolute inset-x-0 top-0 h-[2px]", colorLabelClass(card.colorLabel))} />
-
             <div className="px-3 py-3">
                 <div className="flex items-start gap-2">
                     <div className="flex-1 min-w-0">

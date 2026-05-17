@@ -43,6 +43,8 @@ create table if not exists cards (
     color_label text,
     tags jsonb not null default '[]'::jsonb,
     checklist jsonb not null default '[]'::jsonb,
+    push_to_branch boolean not null default false,
+    branch_url text,
     agent_logs jsonb not null default '[]'::jsonb,
     activity_log jsonb not null default '[]'::jsonb,
     archived boolean not null default false,

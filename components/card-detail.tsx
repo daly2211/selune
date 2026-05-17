@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -41,10 +42,11 @@ import {
     Clock,
     MessageSquare,
     GripVertical,
-    Bold,
-    Italic,
-    List,
+    GitBranch,
 } from "lucide-react";
+
+const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
+
 
 const priorities: { value: Priority; label: string; icon: typeof ArrowUp; class: string }[] = [
     { value: "urgent", label: "Urgent", icon: AlertTriangle, class: "text-priority-urgent" },
@@ -52,7 +54,6 @@ const priorities: { value: Priority; label: string; icon: typeof ArrowUp; class:
     { value: "medium", label: "Medium", icon: Minus, class: "text-priority-medium" },
     { value: "low", label: "Low", icon: ArrowDown, class: "text-priority-low" },
 ];
-
 const colors = [
     { value: "blue", class: "bg-accent-blue", label: "Blue" },
     { value: "red", class: "bg-accent-red", label: "Red" },
@@ -133,6 +134,34 @@ function SortableChecklistItem({
     );
 }
 
+function RunningIndicator() {
+    return (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-blue/30 bg-accent-blue-subtle/60 px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-accent-blue">
+            <span className="relative inline-flex h-3 w-3 items-center justify-center">
+                <span className="absolute inline-flex h-3 w-3 animate-ping rounded-full bg-accent-blue/30" />
+                <span className="inline-flex h-3 w-3 animate-spin rounded-full bg-gradient-to-r from-accent-blue via-accent-amber to-accent-green p-[1px]">
+                    <span className="h-full w-full rounded-full bg-bg-secondary" />
+                </span>
+            </span>
+            <span className="font-medium">Running</span>
+        </span>
+    );
+}
+
+function formatBranchUrl(url: string) {
+    try {
+        const parsed = new URL(url);
+        const parts = parsed.pathname.split("/").filter(Boolean);
+        let path = parts.join("/");
+        if (parts.length > 4) {
+            path = `${parts.slice(0, 2).join("/")}/.../${parts.slice(-2).join("/")}`;
+        }
+        return `${parsed.hostname}/${path}`;
+    } catch {
+        return url;
+    }
+}
+
 export function CardDetail() {
     const {
         activeCardId,
@@ -155,8 +184,18 @@ export function CardDetail() {
     const [newCheckItem, setNewCheckItem] = useState("");
 
     const titleRef = useRef<HTMLTextAreaElement>(null);
-    const descRef = useRef<HTMLTextAreaElement>(null);
     const lastCardIdRef = useRef<string | null>(null);
+
+    const editorOptions = useMemo(
+        () => ({
+            autofocus: false,
+            spellChecker: false,
+            status: false,
+            minHeight: "200px",
+            placeholder: "Add a detailed description... (Markdown supported)",
+        }),
+        []
+    );
 
     // DnD sensors for checklist
     const sensors = useSensors(
@@ -243,32 +282,13 @@ export function CardDetail() {
         updateCard(card.id, { checklist: newChecklist });
     }
 
-    function insertMarkdown(prefix: string, suffix: string = "") {
-        if (!descRef.current) return;
-        const { selectionStart, selectionEnd, value } = descRef.current;
-        const selectedText = value.substring(selectionStart, selectionEnd);
-        const newText =
-            value.substring(0, selectionStart) +
-            prefix +
-            selectedText +
-            suffix +
-            value.substring(selectionEnd);
-        setDescription(newText);
-        setTimeout(() => {
-            if (descRef.current) {
-                descRef.current.focus();
-                descRef.current.setSelectionRange(
-                    selectionStart + prefix.length,
-                    selectionEnd + prefix.length
-                );
-            }
-        }, 0);
-    }
 
     if (!card) return null;
 
     const currentPriority = priorities.find((p) => p.value === card.priority);
     const PriorityIcon = currentPriority?.icon || Minus;
+    const isRunning = lane?.key === "doing";
+    const branchLabel = card.branchUrl ? formatBranchUrl(card.branchUrl) : "";
 
     return (
         <AnimatePresence>
@@ -298,6 +318,7 @@ export function CardDetail() {
                             <div className="flex min-h-12 items-center justify-between gap-3 px-4 py-2 sm:px-5 border-b border-border-subtle flex-shrink-0 bg-bg-sidebar/50 backdrop-blur-xl">
                                 <div className="flex min-w-0 items-center gap-2 text-[12px] text-text-muted font-mono">
                                     <span className="truncate text-text-tertiary">{lane?.title}</span>
+                                    {isRunning && <RunningIndicator />}
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <button
@@ -351,45 +372,33 @@ export function CardDetail() {
                                     {/* Markdown Description Editor */}
                                     <div className="mt-4">
                                         {isEditingDesc ? (
-                                            <div className="border border-border-default rounded-lg bg-bg-secondary/50 backdrop-blur-sm overflow-hidden focus-within:border-accent-blue/50 transition-theme">
-                                                <div className="flex items-center gap-1 px-2 py-1.5 border-b border-border-subtle bg-bg-tertiary/30">
+                                            <div className="rounded-lg border border-border-default bg-bg-secondary/50 backdrop-blur-sm overflow-hidden transition-theme">
+                                                <div className="bg-bg-tertiary/20">
+                                                    <SimpleMDE
+                                                        value={description}
+                                                        onChange={(value) => setDescription(value || "")}
+                                                        options={editorOptions}
+                                                    />
+                                                </div>
+                                                <div className="flex items-center justify-end gap-2 px-3 py-2 border-t border-border-subtle bg-bg-tertiary/30">
                                                     <button
-                                                        onClick={() => insertMarkdown("**", "**")}
-                                                        className="p-1.5 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-secondary"
-                                                        title="Bold"
+                                                        onClick={() => setIsEditingDesc(false)}
+                                                        className="px-3 py-1 text-[12px] text-text-tertiary hover:text-text-secondary transition-theme"
                                                     >
-                                                        <Bold size={13} />
+                                                        Close
                                                     </button>
                                                     <button
-                                                        onClick={() => insertMarkdown("*", "*")}
-                                                        className="p-1.5 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-secondary"
-                                                        title="Italic"
+                                                        onClick={() => {
+                                                            if (description !== card.description) {
+                                                                updateCard(card.id, { description });
+                                                            }
+                                                            setIsEditingDesc(false);
+                                                        }}
+                                                        className="px-3 py-1 text-[12px] font-medium bg-accent-blue text-white rounded-md hover:bg-accent-blue-muted transition-theme"
                                                     >
-                                                        <Italic size={13} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => insertMarkdown("- ")}
-                                                        className="p-1.5 rounded hover:bg-bg-hover text-text-tertiary hover:text-text-secondary"
-                                                        title="Bullet List"
-                                                    >
-                                                        <List size={13} />
+                                                        Save
                                                     </button>
                                                 </div>
-                                                <textarea
-                                                    ref={descRef}
-                                                    value={description}
-                                                    onChange={(e) => setDescription(e.target.value)}
-                                                    onBlur={() => {
-                                                        if (description !== card.description) {
-                                                            updateCard(card.id, { description });
-                                                        }
-                                                        setIsEditingDesc(false);
-                                                    }}
-                                                    placeholder="Add a detailed description… (Markdown supported)"
-                                                    rows={4}
-                                                    className="w-full px-3 py-2 text-[14px] text-text-secondary bg-transparent placeholder:text-text-muted outline-none resize-y leading-relaxed"
-                                                    style={{ fieldSizing: "content" } as React.CSSProperties}
-                                                />
                                             </div>
                                         ) : (
                                             <div
@@ -400,7 +409,7 @@ export function CardDetail() {
                                                 )}
                                             >
                                                 {!description ? (
-                                                    "Add a description…"
+                                                    "Add a description..."
                                                 ) : (
                                                     <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-bg-secondary prose-pre:border prose-pre:border-border-subtle">
                                                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -563,6 +572,35 @@ export function CardDetail() {
                                         />
                                         <span className="truncate">{lane?.title || "—"}</span>
                                     </div>
+                                </div>
+
+                                {/* Agent */}
+                                <div className="min-w-0">
+                                    <div className="text-[11px] font-medium text-text-tertiary uppercase tracking-wider mb-2">
+                                        Agent
+                                    </div>
+                                    <label className="flex items-start gap-2 text-[12px] text-text-secondary leading-relaxed">
+                                        <input
+                                            type="checkbox"
+                                            checked={card.pushToBranch}
+                                            onChange={(e) =>
+                                                updateCard(card.id, { pushToBranch: e.target.checked })
+                                            }
+                                            className="mt-0.5 h-4 w-4 rounded border-border-strong bg-bg-tertiary text-accent-blue focus:ring-0"
+                                        />
+                                        <span>Push changes to a new branch on remote</span>
+                                    </label>
+                                    {card.branchUrl && (
+                                        <a
+                                            href={card.branchUrl}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-bg-hover/70 px-2.5 py-1 text-[11px] text-text-tertiary hover:text-accent-blue hover:border-accent-blue/30 transition-theme break-all"
+                                        >
+                                            <GitBranch size={12} />
+                                            <span className="truncate max-w-[180px]">{branchLabel}</span>
+                                        </a>
+                                    )}
                                 </div>
 
                                 {/* Priority */}

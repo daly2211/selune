@@ -64,6 +64,7 @@ export function Sidebar() {
     const favoriteBoards = boards.filter((b) => b.favorite && !b.archived);
     const regularBoards = boards.filter((b) => !b.favorite && !b.archived);
     const archivedBoards = boards.filter((b) => b.archived);
+    const serverUrl = typeof window !== "undefined" ? window.location.origin : "";
 
     useEffect(() => {
         if (editingId && editInputRef.current) editInputRef.current.focus();
@@ -336,6 +337,17 @@ export function Sidebar() {
                         >
                             Create your first board
                         </button>
+                        <div className="mt-4 rounded-lg border border-border-default/70 bg-gradient-to-br from-bg-tertiary/90 via-bg-secondary/90 to-bg-tertiary/50 px-3 py-2 text-left shadow-[var(--shadow-sm)]">
+                            <div className="text-[10px] uppercase tracking-[0.14em] text-text-muted mb-1">
+                                Agent client how-to
+                            </div>
+                            <p className="text-[11px] text-text-tertiary mb-2">
+                                Run the client with your workspace API key to pick up tasks.
+                            </p>
+                            <div className="rounded-md border border-border-subtle bg-bg-primary/70 px-2 py-1.5 text-[11px] text-text-secondary font-mono break-all">
+                                npx tsx scripts/agent-client.ts --server {serverUrl || "http://your-server"} --api-key &lt;key&gt;
+                            </div>
+                        </div>
                     </div>
                 )}
 
