@@ -32,6 +32,8 @@ export interface Card {
     colorLabel: string | null;
     tags: string[];
     checklist: ChecklistItem[];
+    pushToBranch: boolean;
+    branchUrl: string | null;
     agentLogs: AgentLogEntry[];
     activityLog: ActivityEntry[];
     createdAt: string;
@@ -76,6 +78,19 @@ export interface FilterState {
     showArchived: boolean;
 }
 
+export interface PendingCardPosition {
+    laneId: string;
+    boardId: string;
+    order: number;
+    updatedAt: string;
+    expiresAt: number;
+}
+
+export interface PendingCardCreate {
+    card: Card;
+    expiresAt: number;
+}
+
 export interface AppState {
     apiKey: string | null;
     workspaceReady: boolean;
@@ -94,6 +109,8 @@ export interface AppState {
     filters: FilterState;
     sortField: SortField;
     sortDirection: SortDirection;
+    pendingCardPositions: Record<string, PendingCardPosition>;
+    pendingCardCreates: Record<string, PendingCardCreate>;
 
     // Undo
     undoStack: UndoAction[];

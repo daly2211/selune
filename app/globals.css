@@ -206,3 +206,74 @@ kbd {
 .transition-theme {
   transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease, opacity 120ms ease;
 }
+
+/* SimpleMDE dark theme overrides */
+.EasyMDEContainer {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+}
+
+.EasyMDEContainer .editor-toolbar {
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 6px 8px;
+}
+
+.EasyMDEContainer .editor-toolbar button {
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+}
+
+.EasyMDEContainer .editor-toolbar button:hover,
+.EasyMDEContainer .editor-toolbar button.active {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.EasyMDEContainer .CodeMirror {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.EasyMDEContainer .CodeMirror-cursor {
+  border-left: 1px solid var(--accent-blue);
+}
+
+.EasyMDEContainer .CodeMirror-selected,
+.EasyMDEContainer .CodeMirror-line::selection,
+.EasyMDEContainer .CodeMirror-line > span::selection,
+.EasyMDEContainer .CodeMirror-line > span > span::selection {
+  background: rgba(94, 106, 210, 0.25);
+}
+
+.EasyMDEContainer .CodeMirror-scroll {
+  min-height: 200px;
+}
+
+.EasyMDEContainer .editor-preview,
+.EasyMDEContainer .editor-preview-side {
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.EasyMDEContainer .editor-preview a,
+.EasyMDEContainer .editor-preview-side a {
+  color: var(--accent-blue);
+}
+
+.EasyMDEContainer .editor-preview pre,
+.EasyMDEContainer .editor-preview-side pre {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+
+.EasyMDEContainer .editor-statusbar {
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+}

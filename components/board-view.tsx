@@ -38,6 +38,8 @@ export function BoardView() {
 
     const board = boards.find((b) => b.id === activeBoardId);
     const lanes = activeBoardId ? getBoardLanes(activeBoardId) : [];
+    const hasBoards = boards.some((b) => !b.archived);
+    const serverUrl = typeof window !== "undefined" ? window.location.origin : "";
 
     const [activeCard, setActiveCard] = useState<Card | null>(null);
 
@@ -138,7 +140,7 @@ export function BoardView() {
     if (!board) {
         return (
             <div className="flex-1 flex items-center justify-center bg-bg-primary px-4">
-                <div className="text-center max-w-[280px]">
+                <div className="text-center max-w-[360px]">
                     <button
                         onClick={toggleSidebar}
                         className="mb-3 inline-flex items-center gap-1.5 rounded-md border border-border-subtle px-2.5 py-1.5 text-[12px] text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-theme md:hidden"
@@ -149,10 +151,28 @@ export function BoardView() {
                     <div className="w-10 h-10 rounded-lg bg-bg-tertiary flex items-center justify-center mx-auto mb-3">
                         <Layers size={18} className="text-text-muted" />
                     </div>
-                    <div className="text-[14px] text-text-secondary mb-1">No board selected</div>
+                    <div className="text-[14px] text-text-secondary mb-1">
+                        {hasBoards ? "No board selected" : "No boards yet"}
+                    </div>
                     <p className="text-[12px] text-text-muted leading-relaxed">
-                        Create a new board or select one from the sidebar to get started.
+                        {hasBoards
+                            ? "Create a new board or select one from the sidebar to get started."
+                            : "Create your first board to start tracking tasks."}
                     </p>
+
+                    {!hasBoards && (
+                        <div className="mt-5 rounded-xl border border-border-default/70 bg-gradient-to-br from-bg-tertiary/90 via-bg-secondary/90 to-bg-tertiary/50 px-4 py-3 text-left shadow-[var(--shadow-md)]">
+                            <div className="text-[10px] uppercase tracking-[0.16em] text-text-muted mb-1">
+                                Agent client how-to
+                            </div>
+                            <p className="text-[12px] text-text-tertiary mb-2">
+                                Run the client with your workspace API key to pick up tasks.
+                            </p>
+                            <div className="rounded-md border border-border-subtle bg-bg-primary/70 px-2.5 py-2 text-[11px] text-text-secondary font-mono break-all">
+                                npx tsx scripts/agent-client.ts --server {serverUrl || "http://your-server"} --api-key &lt;key&gt;
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         );

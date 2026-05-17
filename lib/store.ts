@@ -12,6 +12,8 @@ import type {
     SortField,
     SortDirection,
     UndoAction,
+    PendingCardPosition,
+    PendingCardCreate,
 } from "./types";
 
 const defaultFilters: FilterState = {
@@ -113,6 +115,74 @@ function resolveActiveBoardId(currentId: string | null, boards: Board[]) {
     return boards[0]?.id ?? null;
 }
 
+function applyPendingPositions(
+    cards: Card[],
+    pending: Record<string, PendingCardPosition>
+) {
+    const pendingIds = Object.keys(pending);
+    if (pendingIds.length === 0) {
+        return { cards, pending };
+    }
+
+    const nowMs = Date.now();
+    const nextPending: Record<string, PendingCardPosition> = { ...pending };
+
+    const merged = cards.map((card) => {
+        const pendingMove = pending[card.id];
+        if (!pendingMove) return card;
+        if (pendingMove.expiresAt <= nowMs) {
+            delete nextPending[card.id];
+            return card;
+        }
+        if (card.laneId === pendingMove.laneId && card.order === pendingMove.order) {
+            delete nextPending[card.id];
+            return card;
+        }
+        return {
+            ...card,
+            laneId: pendingMove.laneId,
+            boardId: pendingMove.boardId,
+            order: pendingMove.order,
+            updatedAt: pendingMove.updatedAt,
+        };
+    });
+
+    return { cards: merged, pending: nextPending };
+}
+
+function applyPendingCreates(
+    cards: Card[],
+    pending: Record<string, PendingCardCreate>
+) {
+    const pendingIds = Object.keys(pending);
+    if (pendingIds.length === 0) {
+        return { cards, pending };
+    }
+
+    const nowMs = Date.now();
+    const nextPending: Record<string, PendingCardCreate> = { ...pending };
+    const cardIds = new Set(cards.map((card) => card.id));
+    const merged = [...cards];
+
+    for (const [tempId, pendingCreate] of Object.entries(pending)) {
+        if (pendingCreate.expiresAt <= nowMs) {
+            delete nextPending[tempId];
+            continue;
+        }
+        if (!cardIds.has(pendingCreate.card.id)) {
+            merged.push(pendingCreate.card);
+            cardIds.add(pendingCreate.card.id);
+        }
+    }
+
+    return { cards: merged, pending: nextPending };
+}
+
+function createTempId(prefix: string) {
+    const random = Math.random().toString(36).slice(2, 8);
+    return `${prefix}-${Date.now()}-${random}`;
+}
+
 export const useStore = create<AppState>()(
     persist(
         (set, get) => ({
@@ -130,20 +200,34 @@ export const useStore = create<AppState>()(
             sortField: "manual" as SortField,
             sortDirection: "desc" as SortDirection,
             undoStack: [] as UndoAction[],
+            pendingCardPositions: {},
+            pendingCardCreates: {},
 
             setApiKey: (apiKey) => set({ apiKey }),
 
             setWorkspaceData: (workspace) => {
-                set((state) => ({
-                    boards: workspace.boards,
-                    lanes: workspace.lanes,
-                    cards: workspace.cards,
-                    activeBoardId: resolveActiveBoardId(
-                        state.activeBoardId,
-                        workspace.boards
-                    ),
-                    workspaceReady: true,
-                }));
+                set((state) => {
+                    const mergedPositions = applyPendingPositions(
+                        workspace.cards,
+                        state.pendingCardPositions
+                    );
+                    const mergedCreates = applyPendingCreates(
+                        mergedPositions.cards,
+                        state.pendingCardCreates
+                    );
+                    return {
+                        boards: workspace.boards,
+                        lanes: workspace.lanes,
+                        cards: mergedCreates.cards,
+                        activeBoardId: resolveActiveBoardId(
+                            state.activeBoardId,
+                            workspace.boards
+                        ),
+                        pendingCardPositions: mergedPositions.pending,
+                        pendingCardCreates: mergedCreates.pending,
+                        workspaceReady: true,
+                    };
+                });
             },
 
             bootstrapWorkspace: async () => {
@@ -324,6 +408,52 @@ export const useStore = create<AppState>()(
                 if (!lane || lane.key !== "backlog") return null;
                 const apiKey = state.apiKey;
                 if (!apiKey) return null;
+                const timestamp = now();
+                const nextOrder =
+                    Math.max(
+                        -1,
+                        ...state.cards
+                            .filter((c) => c.laneId === laneId)
+                            .map((c) => c.order)
+                    ) + 1;
+                const tempId = createTempId("card");
+                const activityId = createTempId("activity");
+                const tempCard: Card = {
+                    id: tempId,
+                    title,
+                    description: "",
+                    dueDate: null,
+                    priority: "medium",
+                    colorLabel: null,
+                    tags: [],
+                    checklist: [],
+                    pushToBranch: false,
+                    branchUrl: null,
+                    agentLogs: [],
+                    activityLog: [
+                        {
+                            id: activityId,
+                            action: "created",
+                            timestamp,
+                        },
+                    ],
+                    createdAt: timestamp,
+                    updatedAt: timestamp,
+                    archived: false,
+                    laneId,
+                    boardId: lane.boardId,
+                    order: nextOrder,
+                };
+                set((s) => ({
+                    cards: [...s.cards, tempCard],
+                    pendingCardCreates: {
+                        ...s.pendingCardCreates,
+                        [tempId]: {
+                            card: tempCard,
+                            expiresAt: Date.now() + 8000,
+                        },
+                    },
+                }));
                 try {
                     const data = await apiFetch<{ card: Card }>(apiKey, "/api/cards", {
                         method: "POST",
@@ -335,9 +465,23 @@ export const useStore = create<AppState>()(
                         }),
                     });
 
-                    set((s) => ({ cards: [...s.cards, data.card] }));
+                    set((s) => {
+                        const { [tempId]: _pending, ...rest } = s.pendingCardCreates;
+                        let cards = s.cards.filter((c) => c.id !== tempId);
+                        if (!cards.some((c) => c.id === data.card.id)) {
+                            cards = [...cards, data.card];
+                        }
+                        return { cards, pendingCardCreates: rest };
+                    });
                     return data.card;
                 } catch (error) {
+                    set((s) => {
+                        const { [tempId]: _pending, ...rest } = s.pendingCardCreates;
+                        return {
+                            cards: s.cards.filter((c) => c.id !== tempId),
+                            pendingCardCreates: rest,
+                        };
+                    });
                     console.error("createCard failed", error);
                     return null;
                 }
@@ -413,6 +557,13 @@ export const useStore = create<AppState>()(
                 const state = get();
                 const lane = state.lanes.find((l) => l.id === toLaneId);
                 if (!lane) return;
+                const pendingMove: PendingCardPosition = {
+                    laneId: toLaneId,
+                    boardId: lane.boardId,
+                    order: newOrder,
+                    updatedAt: now(),
+                    expiresAt: Date.now() + 8000,
+                };
                 set((s) => ({
                     cards: s.cards.map((c) => {
                         if (c.id === cardId) {
@@ -426,6 +577,10 @@ export const useStore = create<AppState>()(
                         }
                         return c;
                     }),
+                    pendingCardPositions: {
+                        ...s.pendingCardPositions,
+                        [cardId]: pendingMove,
+                    },
                 }));
 
                 const apiKey = get().apiKey;
@@ -433,16 +588,48 @@ export const useStore = create<AppState>()(
                 void apiFetch<{ card: Card }>(apiKey, `/api/cards/${cardId}`, {
                     method: "PATCH",
                     body: JSON.stringify({ laneId: toLaneId, order: newOrder }),
-                }).catch(() => undefined);
+                })
+                    .then((data) =>
+                        set((s) => {
+                            const { [cardId]: _pending, ...rest } =
+                                s.pendingCardPositions;
+                            return {
+                                cards: s.cards.map((c) =>
+                                    c.id === cardId ? data.card : c
+                                ),
+                                pendingCardPositions: rest,
+                            };
+                        })
+                    )
+                    .catch(() => undefined);
             },
 
             reorderCards: (laneId, cardIds) => {
+                const lane = get().lanes.find((l) => l.id === laneId);
+                const nowIso = now();
+                const expiresAt = Date.now() + 8000;
+                const pendingUpdates: Record<string, PendingCardPosition> = {};
+                if (lane) {
+                    cardIds.forEach((id, index) => {
+                        pendingUpdates[id] = {
+                            laneId,
+                            boardId: lane.boardId,
+                            order: index,
+                            updatedAt: nowIso,
+                            expiresAt,
+                        };
+                    });
+                }
                 set((s) => ({
                     cards: s.cards.map((c) => {
                         if (c.laneId !== laneId) return c;
                         const idx = cardIds.indexOf(c.id);
                         return idx >= 0 ? { ...c, order: idx } : c;
                     }),
+                    pendingCardPositions: {
+                        ...s.pendingCardPositions,
+                        ...pendingUpdates,
+                    },
                 }));
 
                 const apiKey = get().apiKey;
@@ -450,7 +637,18 @@ export const useStore = create<AppState>()(
                 void apiFetch<{ ok: true }>(apiKey, `/api/lanes/${laneId}/reorder`, {
                     method: "POST",
                     body: JSON.stringify({ cardIds }),
-                }).catch(() => undefined);
+                })
+                    .then(() =>
+                        set((s) => {
+                            if (!lane) return {};
+                            const nextPending = { ...s.pendingCardPositions };
+                            cardIds.forEach((id) => {
+                                delete nextPending[id];
+                            });
+                            return { pendingCardPositions: nextPending };
+                        })
+                    )
+                    .catch(() => undefined);
             },
 
             // UI

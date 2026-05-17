@@ -29,6 +29,10 @@ export default function RootLayout({
     >
       <head>
         <link rel="preload" href="/logo.png" as="image" type="image/png" />
+        <link
+          rel="stylesheet"
+          href="https://unpkg.com/easymde@2.20.0/dist/easymde.min.css"
+        />
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

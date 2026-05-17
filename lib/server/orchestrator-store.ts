@@ -67,6 +67,8 @@ type CardRow = {
     color_label: string | null;
     tags: unknown;
     checklist: unknown;
+    push_to_branch: boolean;
+    branch_url: string | null;
     agent_logs: unknown;
     activity_log: unknown;
     archived: boolean;
@@ -128,6 +130,8 @@ function mapCard(row: CardRow): Card {
         colorLabel: row.color_label ?? null,
         tags: normalizeArray<string>(row.tags),
         checklist: normalizeArray<ChecklistItem>(row.checklist),
+        pushToBranch: Boolean(row.push_to_branch),
+        branchUrl: row.branch_url ?? null,
         agentLogs: normalizeArray<AgentLogEntry>(row.agent_logs),
         activityLog: normalizeArray<ActivityEntry>(row.activity_log),
         createdAt: row.created_at,
@@ -412,6 +416,8 @@ export async function createCard(
         color_label: null,
         tags: [],
         checklist: [],
+        push_to_branch: false,
+        branch_url: null,
         agent_logs: [],
         activity_log: [
             {
@@ -448,6 +454,8 @@ export async function updateCard(
             | "colorLabel"
             | "tags"
             | "checklist"
+            | "pushToBranch"
+            | "branchUrl"
             | "archived"
             | "order"
             | "laneId"
@@ -493,6 +501,10 @@ export async function updateCard(
         updateRow.color_label = cardUpdates.colorLabel;
     if (cardUpdates.tags !== undefined) updateRow.tags = cardUpdates.tags;
     if (cardUpdates.checklist !== undefined) updateRow.checklist = cardUpdates.checklist;
+    if (cardUpdates.pushToBranch !== undefined)
+        updateRow.push_to_branch = cardUpdates.pushToBranch;
+    if (cardUpdates.branchUrl !== undefined)
+        updateRow.branch_url = cardUpdates.branchUrl;
     if (cardUpdates.archived !== undefined) updateRow.archived = cardUpdates.archived;
     if (cardUpdates.order !== undefined) updateRow.order_index = cardUpdates.order;
     if (nextLaneId) updateRow.lane_id = nextLaneId;

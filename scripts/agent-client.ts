@@ -82,36 +82,6 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
     return response.json();
 }
 
-function buildPrompt(
-    task: { id: string; title: string; description: string },
-    projectPath: string,
-    boardTitle?: string
-) {
-    const instructions = [
-        "Use curl to call the server API and keep the task todo list updated.",
-        `Base URL: ${serverUrl}`,
-        `Header: X-API-Key: ${apiKey}`,
-        "Create/replace todo list:",
-        `POST ${serverUrl}/api/tasks/${task.id}/todos`,
-        "Body: { items: [{ text, completed }] }",
-        "Update a single item:",
-        `PATCH ${serverUrl}/api/tasks/${task.id}/todos/{todoId}`,
-        "Body: { completed: true or false }",
-        "Replace full list:",
-        `PUT ${serverUrl}/api/tasks/${task.id}/todos`,
-        "Body: { items: [...] }",
-    ].join(" — ");
-
-    const parts = [`Task: ${task.title}`];
-    if (boardTitle) parts.push(`Board: ${boardTitle}`);
-    if (task.description) parts.push(task.description);
-    if (projectPath) parts.push(`Project path: ${projectPath}`);
-    parts.push("---");
-    parts.push(instructions);
-
-    return parts.join(" — ");
-}
-
 async function runBob(prompt: string, cwd?: string) {
     const safePrompt = prompt.replace(/[\r\n]+/g, " ").trim();
     console.log(`[agent] Running bob in ${cwd || process.cwd()}`);
@@ -138,9 +108,10 @@ async function runBob(prompt: string, cwd?: string) {
 
 async function claimTask() {
     return apiFetch<{
-        task: { id: string; title: string; description: string } | null;
+        task: { id: string; title: string; description: string; pushToBranch?: boolean } | null;
         board: { id: string; title: string; projectPath: string } | null;
         projectPath: string;
+        prompt?: string;
     }>("/api/agent/claim", {
         method: "POST",
         body: JSON.stringify({}),
@@ -157,14 +128,17 @@ async function reportResult(cardId: string, output: string, exitCode: number) {
 async function loop() {
     while (true) {
         try {
-            const { task, projectPath, board } = await claimTask();
+            const { task, projectPath, board, prompt: claimPrompt } = await claimTask();
             if (!task) {
                 await delay(pollInterval);
                 continue;
             }
 
-            const prompt = buildPrompt(task, projectPath, board?.title);
-            const { output, exitCode } = await runBob(prompt, projectPath);
+            if (!claimPrompt) {
+                throw new Error("Missing prompt from server");
+            }
+
+            const { output, exitCode } = await runBob(claimPrompt, projectPath);
             await reportResult(task.id, output, exitCode);
         } catch (error) {
             console.error("Agent client error:", error);
