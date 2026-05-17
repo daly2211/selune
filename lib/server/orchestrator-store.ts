@@ -8,6 +8,7 @@ import type {
     Lane,
 } from "../types";
 import { DEFAULT_LANES, isLaneKey, type LaneKey } from "../kanban";
+import type { Json } from "./database.types";
 import { getSupabaseClient } from "./supabase";
 
 export interface WorkspaceSummary {
@@ -65,12 +66,12 @@ type CardRow = {
     due_date: string | null;
     priority: string;
     color_label: string | null;
-    tags: unknown;
-    checklist: unknown;
+    tags: Json;
+    checklist: Json;
     push_to_branch: boolean;
     branch_url: string | null;
-    agent_logs: unknown;
-    activity_log: unknown;
+    agent_logs: Json;
+    activity_log: Json;
     archived: boolean;
     order_index: number;
     created_at: string;
