@@ -3,9 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight, Zap, Bot, Layers, CheckCircle2, CircleDashed, Inbox, FileText, CheckSquare, Activity, Briefcase, Folder, Star, MessageSquare, Clock, Terminal, ArrowUpCircle } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type Variants } from "framer-motion";
 
-const FADE_UP_ANIMATION_VARIANTS = {
+const FADE_UP_ANIMATION_VARIANTS: Variants = {
   hidden: { opacity: 0, y: 30 },
   show: { opacity: 1, y: 0, transition: { type: "spring", duration: 0.8 } },
 };
