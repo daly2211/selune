@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Selune
 
-## Getting Started
+![IBM Bob Hackathon thumbnail](public/ibm-bob-hackathon.webp)
 
-First, run the development server:
+Selune is a hands-off agentic development board for IBM Bob.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+It turns project work into a live queue of tasks that Bob can claim, execute, update, and report back on. Instead of having to keep of multiple tasks and terminals, Selune gives you a bird's eye view of your project and lets you manage your workflow in one place.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## What It Does
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Organizes software work into boards, lanes, cards, checklists, and activity logs.
+- Lets an IBM Bob agent poll for the next available task.
+- Sends Bob a complete task prompt with repo path, task details, and reporting instructions.
+- Tracks progress through todo updates, logs, completion status, and branch links.
+- Moves finished work into review so a developer can inspect the result.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Why Bob
 
-## Learn More
+Selune is built around IBM Bob as the active development partner. Bob works inside the real repository, uses the project context, performs the implementation, and reports progress back to Selune. The goal is a workflow where a developer defines intent once, then Bob handles the repetitive execution loop with visible state and reviewable output.
 
-To learn more about Next.js, take a look at the following resources:
+## Hackathon
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Built for the IBM Bob Hackathon by lablab.ai.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Event: May 15-17, 2026, online  
+Theme: Your repo. Your rules. AI as your dev partner.  
+Challenge: Build solutions that improve how software is built with IBM Bob.
 
-## Deploy on Vercel
+## Tech
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js, Supabase, Zustand and IBM Bob.
