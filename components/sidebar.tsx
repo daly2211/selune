@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import {
     LayoutDashboard,
     Plus,
@@ -91,9 +92,16 @@ export function Sidebar() {
         setEditingId(null);
     }
 
+    function selectBoard(id: string) {
+        setActiveBoard(id);
+        if (typeof window !== "undefined" && window.innerWidth < 768 && !sidebarCollapsed) {
+            toggleSidebar();
+        }
+    }
+
     if (sidebarCollapsed) {
         return (
-            <div className="w-[46px] flex-shrink-0 bg-bg-sidebar/90 backdrop-blur-md border-r border-border-default flex flex-col items-center pt-3 pb-2 gap-1">
+            <div className="hidden md:flex w-[46px] flex-shrink-0 bg-bg-sidebar/90 backdrop-blur-md border-r border-border-default flex-col items-center pt-3 pb-2 gap-1">
                 <button
                     onClick={toggleSidebar}
                     className="p-2 rounded-md hover:bg-bg-hover text-text-tertiary hover:text-text-secondary transition-theme"
@@ -107,7 +115,7 @@ export function Sidebar() {
                     .map((b) => (
                         <button
                             key={b.id}
-                            onClick={() => setActiveBoard(b.id)}
+                            onClick={() => selectBoard(b.id)}
                             className={cn(
                                 "w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-semibold transition-theme",
                                 activeBoardId === b.id
@@ -164,7 +172,7 @@ export function Sidebar() {
                 />
             ) : (
                 <button
-                    onClick={() => setActiveBoard(board.id)}
+                    onClick={() => selectBoard(board.id)}
                     className={cn(
                         "w-full flex items-center gap-2.5 px-2.5 py-[5px] rounded-md text-[13px] transition-theme",
                         activeBoardId === board.id
@@ -189,7 +197,7 @@ export function Sidebar() {
                         e.stopPropagation();
                         setContextMenu(contextMenu === board.id ? null : board.id);
                     }}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-bg-active text-text-tertiary hover:text-text-secondary transition-theme"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-bg-active text-text-tertiary hover:text-text-secondary transition-theme"
                 >
                     <MoreHorizontal size={14} />
                 </button>
@@ -243,13 +251,24 @@ export function Sidebar() {
     );
 
     return (
-        <div className="w-[220px] flex-shrink-0 bg-bg-sidebar/90 backdrop-blur-md border-r border-border-default flex flex-col h-full select-none z-10 relative">
+        <>
+        <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden"
+            onClick={toggleSidebar}
+        />
+        <div className="fixed inset-y-0 left-0 z-50 w-[min(82vw,260px)] bg-bg-sidebar/90 backdrop-blur-md border-r border-border-default flex flex-col h-full select-none md:relative md:z-10 md:w-[220px] md:flex-shrink-0">
             {/* Brand header */}
             <div className="px-3 h-12 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded bg-accent-blue flex items-center justify-center">
-                        <Layers size={11} className="text-white" />
-                    </div>
+                    <Image
+                        src="/logo.png"
+                        alt="Selune Logo"
+                        width={20}
+                        height={20}
+                        priority
+                        unoptimized
+                        className="object-contain rounded"
+                    />
                     <span className="text-[13px] font-semibold text-text-primary tracking-tight">
                         Selune
                     </span>
@@ -349,5 +368,6 @@ export function Sidebar() {
                 </div>
             </div>
         </div>
+        </>
     );
 }

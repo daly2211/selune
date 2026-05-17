@@ -58,12 +58,12 @@ export function BoardCreateModal() {
     return (
         <div
             ref={overlayRef}
-            className="fixed inset-0 z-[150] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+            className="fixed inset-0 z-[150] flex items-center justify-center bg-black/70 backdrop-blur-sm px-3 py-4 sm:px-4"
             onClick={(e) => {
                 if (e.target === overlayRef.current) closeBoardCreate();
             }}
         >
-            <div className="w-full max-w-[520px] bg-bg-primary border border-border-default rounded-xl shadow-[var(--shadow-popup)] p-6">
+            <div className="max-h-full w-full max-w-[520px] overflow-y-auto bg-bg-primary border border-border-default rounded-xl shadow-[var(--shadow-popup)] p-4 sm:p-6">
                 <div className="text-[18px] font-semibold text-text-primary mb-1">
                     Create board
                 </div>
@@ -102,7 +102,7 @@ export function BoardCreateModal() {
 
                 {error && <div className="mt-4 text-[12px] text-accent-red">{error}</div>}
 
-                <div className="mt-6 flex items-center justify-end gap-2">
+                <div className="mt-6 flex flex-col-reverse items-stretch gap-2 sm:flex-row sm:items-center sm:justify-end">
                     <button
                         onClick={closeBoardCreate}
                         className="px-3 py-2 text-[13px] rounded-md border border-border-default text-text-secondary hover:text-text-primary hover:bg-bg-hover transition-theme"

@@ -122,12 +122,17 @@ export function KanbanLane({ lane }: { lane: LaneType }) {
         setIsEditing(false);
     }
 
+    function setLaneNode(node: HTMLDivElement | null) {
+        setSortableRef(node);
+        setDroppableRef(node);
+    }
+
     return (
         <div
-            ref={setSortableRef}
+            ref={setLaneNode}
             style={sortableStyle}
             className={cn(
-                "flex-shrink-0 w-[280px] flex flex-col max-h-full",
+                "flex w-full flex-shrink-0 flex-col max-w-none xl:w-[280px] xl:max-h-full",
                 isDragging && "opacity-30"
             )}
         >
@@ -137,7 +142,7 @@ export function KanbanLane({ lane }: { lane: LaneType }) {
                     <button
                         {...attributes}
                         {...listeners}
-                        className="p-0.5 rounded opacity-0 group-hover:opacity-30 hover:!opacity-80 cursor-grab active:cursor-grabbing text-text-muted transition-opacity"
+                        className="touch-none p-0.5 rounded opacity-40 md:opacity-0 md:group-hover:opacity-30 hover:!opacity-80 cursor-grab active:cursor-grabbing text-text-muted transition-opacity"
                     >
                         <GripVertical size={13} />
                     </button>
@@ -180,7 +185,7 @@ export function KanbanLane({ lane }: { lane: LaneType }) {
                     {!lane.locked && (
                         <button
                             onClick={() => setShowMenu(!showMenu)}
-                            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-bg-hover text-text-muted hover:text-text-secondary transition-theme"
+                            className="p-1 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-bg-hover text-text-muted hover:text-text-secondary transition-theme"
                         >
                             <MoreHorizontal size={14} />
                         </button>
@@ -189,7 +194,7 @@ export function KanbanLane({ lane }: { lane: LaneType }) {
                     {lane.key === "backlog" && (
                         <button
                             onClick={() => setIsAdding(true)}
-                            className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-bg-hover text-text-muted hover:text-text-secondary transition-theme"
+                            className="p-1 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-bg-hover text-text-muted hover:text-text-secondary transition-theme"
                             title="Add card"
                         >
                             <Plus size={14} />
@@ -230,8 +235,7 @@ export function KanbanLane({ lane }: { lane: LaneType }) {
             {/* Cards */}
             {!lane.collapsed && (
                 <div
-                    ref={setDroppableRef}
-                    className="flex-1 overflow-y-auto px-0.5 pb-2 space-y-1 lane-scroll min-h-[48px]"
+                    className="min-h-[84px] touch-pan-y space-y-1 overflow-visible px-0.5 pb-2 lane-scroll xl:flex-1 xl:touch-auto xl:overflow-y-auto"
                 >
                     <SortableContext
                         items={cards.map((c) => c.id)}
