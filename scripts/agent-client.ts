@@ -7,6 +7,42 @@ type ClientArgs = {
     pollInterval: number;
 };
 
+const colors = {
+    dim: "\x1b[2m",
+    reset: "\x1b[0m",
+    blue: "\x1b[34m",
+    green: "\x1b[32m",
+    yellow: "\x1b[33m",
+    red: "\x1b[31m",
+};
+
+const useColor = process.stdout.isTTY && process.env.NO_COLOR === undefined;
+
+function colorize(value: string, color: keyof typeof colors) {
+    return useColor ? `${colors[color]}${value}${colors.reset}` : value;
+}
+
+function timestamp() {
+    return colorize(new Date().toLocaleTimeString(), "dim");
+}
+
+function logInfo(message: string) {
+    console.log(`${timestamp()} ${colorize("info", "blue")}  ${message}`);
+}
+
+function logSuccess(message: string) {
+    console.log(`${timestamp()} ${colorize("done", "green")}  ${message}`);
+}
+
+function logWait(message: string) {
+    console.log(`${timestamp()} ${colorize("wait", "yellow")}  ${message}`);
+}
+
+function logError(message: string, error?: unknown) {
+    console.error(`${timestamp()} ${colorize("error", "red")} ${message}`);
+    if (error) console.error(error);
+}
+
 function printUsage() {
     console.error(
         [
@@ -84,8 +120,8 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
 
 async function runBob(prompt: string, cwd?: string) {
     const safePrompt = prompt.replace(/[\r\n]+/g, " ").trim();
-    console.log(`[agent] Running bob in ${cwd || process.cwd()}`);
-    console.log(`[agent] Prompt: ${safePrompt}`);
+    logInfo(`Running bob in ${cwd || process.cwd()}`);
+    logInfo(`Prompt: ${safePrompt}`);
     return new Promise<{ output: string; exitCode: number }>((resolve) => {
         const child = spawn("bob", [safePrompt, "--yolo"], {
             cwd: cwd || process.cwd(),
@@ -126,22 +162,38 @@ async function reportResult(cardId: string, output: string, exitCode: number) {
 }
 
 async function loop() {
+    logInfo(`Selune agent client connected to ${serverUrl}`);
+    logInfo(`Polling every ${pollInterval}ms`);
+
+    let idlePolls = 0;
+
     while (true) {
         try {
             const { task, projectPath, board, prompt: claimPrompt } = await claimTask();
             if (!task) {
+                idlePolls += 1;
+                if (idlePolls === 1 || idlePolls % 12 === 0) {
+                    logWait("No task available yet. Listening for work...");
+                }
                 await delay(pollInterval);
                 continue;
             }
+
+            idlePolls = 0;
 
             if (!claimPrompt) {
                 throw new Error("Missing prompt from server");
             }
 
+            const boardName = board?.title ? ` on "${board.title}"` : "";
+            logSuccess(`Claimed "${task.title}"${boardName}`);
             const { output, exitCode } = await runBob(claimPrompt, projectPath);
+            const status = exitCode === 0 ? "completed" : `finished with exit code ${exitCode}`;
+            logInfo(`Bob ${status}; sending result back to Selune`);
             await reportResult(task.id, output, exitCode);
+            logSuccess(`Reported "${task.title}"`);
         } catch (error) {
-            console.error("Agent client error:", error);
+            logError("Agent client error", error);
             await delay(pollInterval);
         }
     }
