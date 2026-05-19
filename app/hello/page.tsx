@@ -95,7 +95,7 @@ export default function Landing() {
         >
           <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/80 to-transparent z-10 pointer-events-none h-full w-full bottom-0" />
           
-          <div className="w-full aspect-[16/11] md:aspect-[21/11] rounded-xl border border-border-strong bg-[#0a0b0d] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden relative flex text-left ring-1 ring-white/5">
+          <div className="w-full h-[750px] md:h-auto md:aspect-[21/11] rounded-xl border border-border-strong bg-[#0a0b0d] shadow-[0_30px_100px_-20px_rgba(0,0,0,0.8)] overflow-hidden relative flex flex-col md:flex-row text-left ring-1 ring-white/5">
             
             {/* Sidebar (from Image 1) */}
             <div className="w-[200px] bg-[#0a0b0d] border-r border-border-default h-full hidden md:flex flex-col pt-4 pb-4 select-none shrink-0">
@@ -125,21 +125,21 @@ export default function Landing() {
             {/* Main Content (Board + Panel) */}
             <div className="flex-1 bg-[#0d0e11] h-full flex flex-col relative overflow-hidden">
               {/* Top Bar */}
-              <div className="h-12 border-b border-border-default flex items-center px-4 gap-4 shrink-0 bg-[#0a0b0d]">
+              <div className="border-b border-border-default flex flex-col md:flex-row items-start md:items-center px-4 py-3 md:py-0 md:h-12 gap-3 md:gap-4 shrink-0 bg-[#0a0b0d]">
                 <div className="text-[12px] text-text-primary font-medium flex items-center gap-2">
-                  bobby <span className="text-text-tertiary font-mono text-[10px]">C:\Users\ELITE\Desktop\projects\...</span>
+                  bobby <span className="text-text-tertiary font-mono text-[10px] hidden sm:inline">C:\Users\ELITE\Desktop\projects\...</span>
                 </div>
-                <div className="ml-auto flex items-center gap-3">
-                  <div className="bg-[#121419] border border-border-default rounded px-3 py-1.5 text-[11px] text-text-tertiary w-32 flex items-center">
+                <div className="md:ml-auto flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+                  <div className="bg-[#121419] border border-border-default rounded px-3 py-1.5 text-[11px] text-text-tertiary w-full md:w-32 flex items-center">
                     Search cards...
                   </div>
                 </div>
               </div>
 
               {/* Board Area */}
-              <div className="flex-1 flex gap-4 p-5 overflow-hidden relative">
+              <div className="flex-1 flex flex-col md:flex-row gap-4 p-5 overflow-y-auto md:overflow-hidden relative">
                 {/* Lane: Backlog */}
-                <div className="w-[200px] flex flex-col gap-3 shrink-0 opacity-40">
+                <div className="w-full md:w-[200px] flex flex-col gap-3 shrink-0 opacity-40">
                   <div className="text-[11px] font-medium text-text-secondary flex justify-between items-center px-1 uppercase tracking-wide">
                     <span>Backlog</span>
                     <span className="text-text-tertiary">1</span>
@@ -153,7 +153,7 @@ export default function Landing() {
                 </div>
 
                 {/* Lane: Doing */}
-                <div className="w-[200px] flex flex-col gap-3 shrink-0">
+                <div className="w-full md:w-[200px] flex flex-col gap-3 shrink-0">
                   <div className="text-[11px] font-medium text-text-primary flex justify-between items-center px-1 uppercase tracking-wide">
                     <span className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-accent-blue" /> Doing
@@ -183,10 +183,10 @@ export default function Landing() {
                   whileInView={{ x: 0 }}
                   transition={{ type: "spring", stiffness: 45, damping: 15, delay: 0.3 }}
                   viewport={{ once: true }}
-                  className="absolute right-0 top-0 bottom-0 w-[420px] lg:w-[500px] bg-[#0a0b0d] border-l border-border-strong shadow-[0_0_50px_rgba(0,0,0,0.8)] flex z-20"
+                  className="absolute right-0 top-0 bottom-0 w-full md:w-[420px] lg:w-[500px] bg-[#0a0b0d] border-l border-border-strong shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col md:flex-row z-20 overflow-y-auto md:overflow-hidden"
                 >
                   {/* Left part of panel: Edit & Activity */}
-                  <div className="flex-1 border-r border-border-default flex flex-col h-full overflow-hidden">
+                  <div className="flex-1 border-b md:border-b-0 md:border-r border-border-default flex flex-col shrink-0 md:shrink md:h-full overflow-visible md:overflow-hidden">
                     <div className="h-12 border-b border-border-default flex items-center px-5 justify-between shrink-0">
                       <span className="text-[11px] text-text-secondary font-medium uppercase tracking-wide">Doing</span>
                       <div className="flex items-center gap-3 text-text-tertiary">
@@ -246,7 +246,7 @@ export default function Landing() {
                   </div>
 
                   {/* Right part of panel: Meta */}
-                  <div className="w-[180px] bg-[#0a0b0d] p-5 flex flex-col gap-8 shrink-0">
+                  <div className="w-full md:w-[180px] bg-[#0a0b0d] p-5 flex flex-row flex-wrap md:flex-col gap-6 md:gap-8 shrink-0">
                     <div>
                       <div className="text-[10px] text-text-tertiary font-bold mb-3 tracking-wider">STATUS</div>
                       <div className="flex items-center gap-2 text-[12px] text-text-primary font-medium">
